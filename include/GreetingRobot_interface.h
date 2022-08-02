@@ -8,7 +8,8 @@
 #ifndef _GREETING_ROBOT_INTERFACE_H
 #define _GREETING_ROBOT_INTERFACE_H
 
-
+#define MOTOR_ONE 0
+#define MOTOR_TWO 1
 
 void GreetingRobot_Init();
 void GreetingRobot_PublishSensorData();
