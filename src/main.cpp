@@ -1,9 +1,21 @@
-#include <Arduino.h>
+/* Include Libiraries */
+#include<Arduino.h>
+#include "STD_TYPES.h"
 
-void setup() {
-  // put your setup code here, to run once:
+#include "GreetingRobot_interface.h"
+
+void setup()
+{
+
+  // Initialization function of the Robot
+  GreetingRobot_Init();
+
+
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+void loop()
+{
+
+  GreetingRobot_PublishSensorData();
+  delay(1);
 }
