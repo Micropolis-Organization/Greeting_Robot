@@ -17,5 +17,5 @@ void loop()
 {
 
   GreetingRobot_PublishSensorData();
-  delay(1);
+  delay(100);
 }

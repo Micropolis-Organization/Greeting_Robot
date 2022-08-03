@@ -19,7 +19,7 @@
 #include "GreetingRobot_private.h"
 
 // Communication with serial over serial1
-HardwareSerial &odrive_serial = Serial1;
+HardwareSerial &odrive_serial = Serial5;
 
 // ODrive object
 ODriveArduino odrive(odrive_serial);
@@ -69,10 +69,10 @@ void cmd_vel_cb(const geometry_msgs::Twist &cmdvel)
         Center_Of_Rotation = Linear_Speed / Angle_Speed;
 
         // Formula for converting the velocity cmd twist msg to motor velocity
-        Left_Wheel_Velocity = -1 * (Angle_Speed * (Center_Of_Rotation - LENGTH / 2));
+        Left_Wheel_Velocity  = -1 * (Angle_Speed * (Center_Of_Rotation - LENGTH / 2));
         Right_Wheel_Velocity = -1 * (Angle_Speed * (Center_Of_Rotation + LENGTH / 2));
 
-        Left_Wheel_Velocity_In_RPS =  Left_Wheel_Velocity / (2 * 3.14 * WHEEL_RADIUS);
+        Left_Wheel_Velocity_In_RPS  = Left_Wheel_Velocity  / (2 * 3.14 * WHEEL_RADIUS);
         Right_Wheel_Velocity_In_RPS = Right_Wheel_Velocity / (2 * 3.14 * WHEEL_RADIUS);
     }
     else
@@ -82,8 +82,8 @@ void cmd_vel_cb(const geometry_msgs::Twist &cmdvel)
         Right_Wheel_Velocity_In_RPS = -1 * Right_Wheel_Velocity_In_RPS;
     }
     
-    odrive.SetVelocity(MOTOR_ONE, Right_Wheel_Velocity_In_RPS);
-    odrive.SetVelocity(MOTOR_TWO, Left_Wheel_Velocity_In_RPS);
+    odrive.SetVelocity(MOTOR_ONE, Right_Wheel_Velocity_In_RPS/10);
+    odrive.SetVelocity(MOTOR_TWO, Left_Wheel_Velocity_In_RPS/10);
 
     nh.loginfo((String("V_l = ") + String(Left_Wheel_Velocity_In_RPS).c_str()).c_str());
     nh.loginfo((String("V_r = ") + String(Right_Wheel_Velocity_In_RPS).c_str()).c_str());
