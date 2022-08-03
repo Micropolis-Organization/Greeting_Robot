@@ -14,18 +14,18 @@
 #include <std_msgs/Int16.h>
 #include "STD_TYPES.h"
 
+
 #include "GreetingRobot_interface.h"
 #include "GreetingRobot_config.h"
 #include "GreetingRobot_private.h"
 
 // Communication with serial over serial1
-HardwareSerial &odrive_serial = Serial5;
+HardwareSerial &odrive_serial = Serial3;
 
 // ODrive object
 ODriveArduino odrive(odrive_serial);
 
 // Global variables to store the values of velocity
-
 f32 Angle_Speed;
 f32 Linear_Speed;
 f32 Left_Wheel_Velocity;
@@ -57,6 +57,7 @@ void Sensor_One_Cb(const std_msgs::Int16 &Sensor_One_Value)
         nh.loginfo((String("Stop Sensor_Value  = ") + String(Sensor_Value).c_str()).c_str());
     }
 }
+
 // Call back function for the CMD Vel topic
 void cmd_vel_cb(const geometry_msgs::Twist &cmdvel)
 {
@@ -82,8 +83,8 @@ void cmd_vel_cb(const geometry_msgs::Twist &cmdvel)
         Right_Wheel_Velocity_In_RPS = -1 * Right_Wheel_Velocity_In_RPS;
     }
     
-    odrive.SetVelocity(MOTOR_ONE, Right_Wheel_Velocity_In_RPS/10);
-    odrive.SetVelocity(MOTOR_TWO, Left_Wheel_Velocity_In_RPS/10);
+    odrive.SetVelocity(MOTOR_ONE, Right_Wheel_Velocity_In_RPS/5);
+    odrive.SetVelocity(MOTOR_TWO, Left_Wheel_Velocity_In_RPS/5);
 
     nh.loginfo((String("V_l = ") + String(Left_Wheel_Velocity_In_RPS).c_str()).c_str());
     nh.loginfo((String("V_r = ") + String(Right_Wheel_Velocity_In_RPS).c_str()).c_str());
@@ -94,7 +95,8 @@ void cmd_vel_cb(const geometry_msgs::Twist &cmdvel)
 ros::Subscriber<geometry_msgs::Twist> cmd_vel_sub("cmd_vel", &cmd_vel_cb);
 ros::Subscriber<std_msgs::Int16> Sub_One("Sensor_One_State", &Sensor_One_Cb);
 
-void GreetingRobot_PublishSensorData()
+// Function to publish the readings of the sensors to ROS topics
+void GreetingRobot_voidPublishSensorData()
 {
     Sensor_One_Value.data = digitalRead(SENSOR_ONE_INPUT_PIN);
     Sensor_One.publish(&Sensor_One_Value);
@@ -107,7 +109,8 @@ void GreetingRobot_PublishSensorData()
     nh.spinOnce();
 }
 
-void GreetingRobot_Init()
+// Initialization function of the Robot
+void GreetingRobot_voidInit()
 {
 
     /* Initialization of pins of the IR sensor */
@@ -118,8 +121,10 @@ void GreetingRobot_Init()
 
     // Start serial communication with oDrive on serial 1
     odrive_serial.begin(115200);
+
     // Initialization node function
     nh.initNode();
+
     // Subscriber node for cmd vel topic
     nh.subscribe(cmd_vel_sub);
     nh.subscribe(Sub_One);
@@ -130,5 +135,5 @@ void GreetingRobot_Init()
     nh.advertise(Sensor_Three);
 
     // start serial with ROS
-    Serial.begin(115000);
+    Serial3.begin(115200);
 }

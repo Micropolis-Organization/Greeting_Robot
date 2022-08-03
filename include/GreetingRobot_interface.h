@@ -11,8 +11,8 @@
 #define MOTOR_ONE 0
 #define MOTOR_TWO 1
 
-void GreetingRobot_Init();
-void GreetingRobot_PublishSensorData();
+void GreetingRobot_voidInit();
+void GreetingRobot_voidPublishSensorData();
 
 
 #endif
