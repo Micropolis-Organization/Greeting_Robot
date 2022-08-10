@@ -14,7 +14,6 @@
 #include <std_msgs/Int16.h>
 #include "STD_TYPES.h"
 
-
 #include "GreetingRobot_interface.h"
 #include "GreetingRobot_config.h"
 #include "GreetingRobot_private.h"
@@ -33,6 +32,7 @@ f32 Right_Wheel_Velocity;
 f32 Left_Wheel_Velocity_In_RPS;
 f32 Right_Wheel_Velocity_In_RPS;
 f32 Center_Of_Rotation;
+u8 Sensor_One_Global_Val;
 
 // Create node handle to manage pub and sub
 ros::NodeHandle nh;
@@ -47,16 +47,7 @@ ros::Publisher Sensor_One("Sensor_One_State", &Sensor_One_Value);
 ros::Publisher Sensor_Two("Sensor_Two_State", &Sensor_Two_Value);
 ros::Publisher Sensor_Three("Sensor_Three_State", &Sensor_Three_Value);
 
-// Call back function fro the sensor topic
-void Sensor_One_Cb(const std_msgs::Int16 &Sensor_One_Value)
-{
-    u8 Sensor_Value = Sensor_One_Value.data;
-    if (Sensor_Value == HIGH)
-    {
-        odrive.SetVelocity(MOTOR_ONE, LOW);
-        nh.loginfo((String("Stop Sensor_Value  = ") + String(Sensor_Value).c_str()).c_str());
-    }
-}
+
 
 // Call back function for the CMD Vel topic
 void cmd_vel_cb(const geometry_msgs::Twist &cmdvel)
@@ -64,27 +55,31 @@ void cmd_vel_cb(const geometry_msgs::Twist &cmdvel)
     Angle_Speed = cmdvel.angular.z;
     Linear_Speed = cmdvel.linear.x;
 
-    if (Angle_Speed != 0.0)
+    if (Sensor_One_Global_Val == HIGH || ((Sensor_One_Global_Val == LOW) && (Linear_Speed < 0.0)))
     {
+        if (Angle_Speed != 0.0)
+        {
 
-        Center_Of_Rotation = Linear_Speed / Angle_Speed;
+            Center_Of_Rotation = Linear_Speed / Angle_Speed;
 
-        // Formula for converting the velocity cmd twist msg to motor velocity
-        Left_Wheel_Velocity  = -1 * (Angle_Speed * (Center_Of_Rotation - LENGTH / 2));
-        Right_Wheel_Velocity = -1 * (Angle_Speed * (Center_Of_Rotation + LENGTH / 2));
+            // Formula for converting the velocity cmd twist msg to motor velocity
+            Left_Wheel_Velocity  = -1 * (Angle_Speed * (Center_Of_Rotation - LENGTH / 2));
+            Right_Wheel_Velocity = -1 * (Angle_Speed * (Center_Of_Rotation + LENGTH / 2));
 
-        Left_Wheel_Velocity_In_RPS  = Left_Wheel_Velocity  / (2 * 3.14 * WHEEL_RADIUS);
-        Right_Wheel_Velocity_In_RPS = Right_Wheel_Velocity / (2 * 3.14 * WHEEL_RADIUS);
+            Left_Wheel_Velocity_In_RPS  = Left_Wheel_Velocity  / (2 * 3.14 * WHEEL_RADIUS);
+            Right_Wheel_Velocity_In_RPS = Right_Wheel_Velocity / (2 * 3.14 * WHEEL_RADIUS);
+        }
+        else
+        {
+            Left_Wheel_Velocity_In_RPS = Right_Wheel_Velocity_In_RPS = Linear_Speed / (2 * 3.14 * WHEEL_RADIUS);
+            Left_Wheel_Velocity_In_RPS = -1 * Left_Wheel_Velocity_In_RPS;
+            Right_Wheel_Velocity_In_RPS = -1 * Right_Wheel_Velocity_In_RPS;
+        }
+
+        odrive.SetVelocity(MOTOR_ONE, Right_Wheel_Velocity_In_RPS/5);
+        odrive.SetVelocity(MOTOR_TWO, Left_Wheel_Velocity_In_RPS/5);
     }
-    else
-    {
-        Left_Wheel_Velocity_In_RPS  = Right_Wheel_Velocity_In_RPS = Linear_Speed / (2 * 3.14 * WHEEL_RADIUS);
-        Left_Wheel_Velocity_In_RPS  = -1 * Left_Wheel_Velocity_In_RPS;
-        Right_Wheel_Velocity_In_RPS = -1 * Right_Wheel_Velocity_In_RPS;
-    }
-    
-    odrive.SetVelocity(MOTOR_ONE, Right_Wheel_Velocity_In_RPS/5);
-    odrive.SetVelocity(MOTOR_TWO, Left_Wheel_Velocity_In_RPS/5);
+
 
     nh.loginfo((String("V_l = ") + String(Left_Wheel_Velocity_In_RPS).c_str()).c_str());
     nh.loginfo((String("V_r = ") + String(Right_Wheel_Velocity_In_RPS).c_str()).c_str());
@@ -93,12 +88,13 @@ void cmd_vel_cb(const geometry_msgs::Twist &cmdvel)
 
 // Creating a ros subscriber for cmd_vel topic
 ros::Subscriber<geometry_msgs::Twist> cmd_vel_sub("cmd_vel", &cmd_vel_cb);
-ros::Subscriber<std_msgs::Int16> Sub_One("Sensor_One_State", &Sensor_One_Cb);
+// ros::Subscriber<std_msgs::Int16> Sub_One("Sensor_One_State", &Sensor_One_Cb);
 
 // Function to publish the readings of the sensors to ROS topics
 void GreetingRobot_voidPublishSensorData()
 {
-    Sensor_One_Value.data = digitalRead(SENSOR_ONE_INPUT_PIN);
+    Sensor_One_Global_Val = digitalRead(SENSOR_ONE_INPUT_PIN);
+    Sensor_One_Value.data = Sensor_One_Global_Val;
     Sensor_One.publish(&Sensor_One_Value);
 
     Sensor_Two_Value.data = digitalRead(SENSOR_TWO_INPUT_PIN);
@@ -106,6 +102,20 @@ void GreetingRobot_voidPublishSensorData()
 
     Sensor_Three_Value.data = digitalRead(SENSOR_THREE_INPUT_PIN);
     Sensor_Three.publish(&Sensor_Three_Value);
+
+ 
+    if ((Sensor_One_Global_Val == LOW) && (Linear_Speed > 0.0))
+    {
+        Right_Wheel_Velocity_In_RPS = 0;
+        Left_Wheel_Velocity_In_RPS = 0;
+
+
+        odrive.SetVelocity(MOTOR_ONE, Right_Wheel_Velocity_In_RPS);
+        odrive.SetVelocity(MOTOR_TWO, Left_Wheel_Velocity_In_RPS);
+        nh.loginfo((String(" cmd_vel_cb Stop Sensor_Value  = ") + String(Sensor_One_Global_Val).c_str()).c_str());
+    }
+ 
+ 
     nh.spinOnce();
 }
 
@@ -127,7 +137,7 @@ void GreetingRobot_voidInit()
 
     // Subscriber node for cmd vel topic
     nh.subscribe(cmd_vel_sub);
-    nh.subscribe(Sub_One);
+    // nh.subscribe(Sub_One);
 
     // advertise sensor  topic
     nh.advertise(Sensor_One);

@@ -24,13 +24,8 @@ void setup()
 void loop()
 {
 
-  while (1)
-  {
-    /* code */
-    Serial.println(digitalRead(10));
-  }
   
   // Function to publish the readings of the sensors to ROS topics
-  // GreetingRobot_voidPublishSensorData();
+  GreetingRobot_voidPublishSensorData();
   delay(100);
 }
