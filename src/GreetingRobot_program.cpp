@@ -111,7 +111,13 @@ void GreetingRobot_voidPublishSensorData()
 
         odrive.SetVelocity(MOTOR_ONE, Right_Wheel_Velocity_In_RPS);
         odrive.SetVelocity(MOTOR_TWO, Left_Wheel_Velocity_In_RPS);
+        digitalWrite(BUZZER_PIN,HIGH);
         nh.loginfo((String(" cmd_vel_cb Stop Sensor_Value  = ") + String(Sensor_One_Global_Val).c_str()).c_str());
+    }
+    else
+    {
+        digitalWrite(BUZZER_PIN,LOW);
+
     }
  
  
@@ -127,6 +133,8 @@ void GreetingRobot_voidInit()
     pinMode(SENSOR_ONE_INPUT_PIN, INPUT);
     pinMode(SENSOR_TWO_INPUT_PIN, INPUT);
     pinMode(SENSOR_THREE_INPUT_PIN, INPUT);
+    pinMode(BUZZER_PIN,OUTPUT);
+    digitalWrite(BUZZER_PIN , LOW);
 
     // Start serial communication with oDrive on serial 1
     odrive_serial.begin(115200);

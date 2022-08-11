@@ -13,6 +13,9 @@
 #define  SENSOR_TWO_INPUT_PIN   11  // Pin for the Left IR Sensor
 #define  SENSOR_THREE_INPUT_PIN 12  // Pin for the Right IR Sensor
 
+/* buzzer pin */
+#define BUZZER_PIN  32
+
 /* Configuration parameters of the robot */
 #define LENGTH        0.33
 #define WHEEL_RADIUS  0.1
