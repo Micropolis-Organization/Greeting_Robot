@@ -55,7 +55,7 @@ void cmd_vel_cb(const geometry_msgs::Twist &cmdvel)
     Angle_Speed = cmdvel.angular.z;
     Linear_Speed = cmdvel.linear.x;
 
-    if (Sensor_One_Global_Val == HIGH || ((Sensor_One_Global_Val == LOW) && (Linear_Speed < 0.0)))
+    if (Sensor_One_Global_Val == HIGH || ((Sensor_One_Global_Val == LOW) && (Linear_Speed < 0.0)) || ((Sensor_One_Global_Val == LOW) && (Angle_Speed != 0.0)))
     {
         if (Angle_Speed != 0.0)
         {
@@ -72,12 +72,12 @@ void cmd_vel_cb(const geometry_msgs::Twist &cmdvel)
         else
         {
             Left_Wheel_Velocity_In_RPS = Right_Wheel_Velocity_In_RPS = Linear_Speed / (2 * 3.14 * WHEEL_RADIUS);
-            Left_Wheel_Velocity_In_RPS = -1 * Left_Wheel_Velocity_In_RPS;
-            Right_Wheel_Velocity_In_RPS = -1 * Right_Wheel_Velocity_In_RPS;
+            Left_Wheel_Velocity_In_RPS =  -1 * (Left_Wheel_Velocity_In_RPS/5);
+            Right_Wheel_Velocity_In_RPS = -1 * (Right_Wheel_Velocity_In_RPS/5);
         }
 
-        odrive.SetVelocity(MOTOR_ONE, Right_Wheel_Velocity_In_RPS/5);
-        odrive.SetVelocity(MOTOR_TWO, Left_Wheel_Velocity_In_RPS/5);
+        odrive.SetVelocity(MOTOR_ONE, Right_Wheel_Velocity_In_RPS);
+        odrive.SetVelocity(MOTOR_TWO, Left_Wheel_Velocity_In_RPS);
     }
 
 
@@ -108,7 +108,6 @@ void GreetingRobot_voidPublishSensorData()
     {
         Right_Wheel_Velocity_In_RPS = 0;
         Left_Wheel_Velocity_In_RPS = 0;
-
 
         odrive.SetVelocity(MOTOR_ONE, Right_Wheel_Velocity_In_RPS);
         odrive.SetVelocity(MOTOR_TWO, Left_Wheel_Velocity_In_RPS);
