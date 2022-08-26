@@ -9,9 +9,9 @@
 #define _GREETING_ROBOT_CONFIG_H
 
 /* Sensor pins */
-#define  SENSOR_ONE_INPUT_PIN   3 
-#define  SENSOR_TWO_INPUT_PIN   4 
-#define  SENSOR_THREE_INPUT_PIN 19
+#define  SENSOR_ONE_INPUT_PIN   10 //For the Front IR Sensor
+#define  SENSOR_TWO_INPUT_PIN   11 //For the Left IR Sensor
+#define  SENSOR_THREE_INPUT_PIN 12 //For the Right IR Sensor
 
 /* Configuration parameters of the robot */
 #define LENGTH        0.33

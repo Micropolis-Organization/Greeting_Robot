@@ -19,7 +19,7 @@
 #include "GreetingRobot_private.h"
 
 // Communication with serial over serial1
-HardwareSerial &odrive_serial = Serial1;
+HardwareSerial &odrive_serial = Serial3;
 
 // ODrive object
 ODriveArduino odrive(odrive_serial);
@@ -130,5 +130,5 @@ void GreetingRobot_Init()
     nh.advertise(Sensor_Three);
 
     // start serial with ROS
-    Serial.begin(115000);
+    Serial3.begin(115000);
 }
