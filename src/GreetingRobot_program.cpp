@@ -152,5 +152,9 @@ void GreetingRobot_voidInit()
     nh.advertise(Sensor_Three);
 
     // start serial with ROS
+<<<<<<< HEAD
+    Serial3.begin(115000);
+=======
     Serial3.begin(115200);
+>>>>>>> 533af2d5d70edcf01ef62142ccc86d53dfc11ce7
 }
